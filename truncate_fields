@@ -1,0 +1,24 @@
+function trunc_strings(target_field,start_string,max_len,recurse) {
+    // target_field:  the object we're going to start with
+    // start_string:  only field names starting with this will be truncated
+    // max_len:       truncate found fields to this maximum length
+    // recurse:       if true, recursively run on any found objects
+
+    // loop through all objects found in target_Field
+    for (let [key, value] of Object.entries(target_field)) {
+        let t = typeof value;
+        // if we have an object, recurse to drill into it (if recurse is true)
+        if (recurse && t == 'object' && !Array.isArray(value) && value) {
+            __e.last_run = key;
+            trunc_strings(target_field[key],start_string,max_len,true);
+        
+            // if we have a string, in a field we care about, that's too long, trim it
+        } else if (t == 'string' && key.startsWith(start_string) && value.length > max_len) {
+            target_field[key] = value.slice(0,max_len);
+        } 
+    }
+}
+
+// use __e for the the top level of the event, 
+// or specify an object, example: __e.records
+trunc_strings(__e,'field',33,true);
